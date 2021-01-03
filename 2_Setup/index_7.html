@@ -1,0 +1,186 @@
+<html>
+  <head>
+    <meta charset="UTF-8" />
+  </head>
+  <body>
+    <h4><strong>Redux Saga Cheat Sheet</strong></h4>
+    <p>Examples of when to use various Redux Saga keywords and techniques:</p>
+    <p><br /></p>
+    <h4><strong>"takeEvery"</strong></h4>
+    <ul>
+      <li>
+        <p>
+          <strong><em>Use this when:</em></strong
+          ><em> </em>You want to watch for EVERY time a specific redux action
+          was dispatched.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Use case:</em></strong
+          ><em> </em>Getting / fetching a list of data from an API.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Example:</em></strong>
+        </p>
+      </li>
+    </ul>
+    <pre class="prettyprint linenums">
+function* watchGetUsersRequest(){
+    yield takeEvery(action.Types.GET_USERS_REQUEST, getUsers);
+}</pre
+    >
+    <p><br /></p>
+    <h4><strong>"takeLatest"</strong></h4>
+    <ul>
+      <li>
+        <p>
+          <strong><em>Use this when: </em></strong>There's the potential for a
+          redux action to be dispatched multiple times in a short period and
+          could potentially initiate the running of multiple instances of the
+          same saga - use takeLatest to ONLY take the latest currently running
+          saga for the associated dispatched redux action.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Use cases: </em></strong>Creating or updating a record,
+          or;
+        </p>
+        <p>
+          If you have a complex app that queries the same API endpoint from
+          multiple components at the same time - for example if you have a
+          navbar that displays the currently logged in user's name, but the user
+          is viewing a 'settings' page to view their personal details meaning
+          both the navbar and the settings page will query the same API endpoint
+          - you'll generally want to take the latest call for that data.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Example:</em></strong>
+        </p>
+      </li>
+    </ul>
+    <pre class="prettyprint linenums">
+function* watchGetLoggedInUserRequest(){
+    yield takeLatest(action.Types.GET_LOGGED_IN_USER_REQUEST, getLoggedInUser);
+}</pre
+    >
+    <p><br /></p>
+    <h4><strong>Blocking saga with "take"</strong></h4>
+    <ul>
+      <li>
+        <p>
+          <strong><em>Use this when: </em></strong>You want to watch for a
+          particular redux action to be dispatched, but you don't want to listen
+          for that same dispatched action again until the currently running saga
+          for that action has complete. You're "blocking" the ability to watch
+          for when that particular redux action is dispatched until the
+          currently running saga for that redux action has complete.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Use case: </em></strong>Deleting a user, or;
+        </p>
+        <p>
+          Accepting a payment. Generally you don't want to be able to accept
+          multiple, simultaneous payments - you'd want to wait for the current
+          transaction to complete before allowing the ability to accept another
+          payment.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Example:</em></strong>
+        </p>
+      </li>
+    </ul>
+    <pre class="prettyprint linenums">
+function* watchDeleteUserRequest(){
+    while(true){
+        const {userId} = yield take(action.Types.DELETE_USER_REQUEST);
+        yield call(deleteUser, {userId});
+    }
+}</pre
+    >
+    <p><br /></p>
+    <h4><strong>"call"</strong></h4>
+    <ul>
+      <li>
+        <p>
+          <strong><em>Use this when: </em></strong>You want to call a function
+          or a promise but want to wait for that function or promise to finish
+          running before executing the next line of code.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Use case: </em></strong>In conjunction with "take" and
+          blocking saga, or;
+        </p>
+        <p>
+          Calling a promise within a worker saga that queries an API endpoint.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Examples:</em></strong>
+        </p>
+      </li>
+    </ul>
+    <pre class="prettyprint linenums">
+function* deleteUser({userId}){
+    try{
+        const result = yield call(api.deleteUser, userId);
+    }catch(e){
+    
+    }
+}
+
+function* watchDeleteUserRequest(){
+    while(true){
+        const {userId} = yield take(action.Types.DELETE_USER_REQUEST);
+        yield call(deleteUser, {userId});
+    }
+}</pre
+    >
+    <p><br /></p>
+    <h4><strong>"put"</strong></h4>
+    <ul>
+      <li>
+        <p>
+          <strong><em>Use this when: </em></strong>You want to dispatch a redux
+          action from within a redux saga.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Use case: </em></strong>Any time you want to update your
+          redux state - usually after a call to an API resolves and you want to
+          update your redux state with the resulting data from the API.
+        </p>
+      </li>
+      <li>
+        <p>
+          <strong><em>Examples:</em></strong>
+        </p>
+      </li>
+    </ul>
+    <pre class="prettyprint linenums">
+function* getUsers(){
+    try{
+        const result = yield call(api.getUsers);
+        yield put(actions.getUsersSuccess({
+            users: result.data.users
+        }));
+    }catch(e){
+    
+    }
+}</pre
+    >
+  </body>
+</html>

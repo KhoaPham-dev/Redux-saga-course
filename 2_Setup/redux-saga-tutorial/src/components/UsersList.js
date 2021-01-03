@@ -2,7 +2,10 @@
 import * as React from "react";
 import { ListGroup, ListGroupItem, Button } from "reactstrap";
 
-const UsersList = ({ users }) => {
+const UsersList = ({ users, onDelete }) => {
+  const handleDelete = (userId) => {
+    onDelete(userId);
+  };
   return (
     <ListGroup>
       {users
@@ -20,7 +23,11 @@ const UsersList = ({ users }) => {
                 <div style={{ flexGrow: 1, margin: "auto 0" }}>
                   {user.firstName} {user.lastName}
                 </div>
-                <Button outline color="danger">
+                <Button
+                  outline
+                  color="danger"
+                  onClick={(e) => handleDelete(user.id)}
+                >
                   Delete
                 </Button>
               </section>
